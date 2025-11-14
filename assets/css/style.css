@@ -24,7 +24,6 @@ body {
     line-height: 1.6;
     color: var(--text-color);
     background-color: var(--light-gray);
-    /* background-image: url('../Img/telephone.svg'); */
     background-size: cover;
     background-attachment: fixed;
 }
@@ -34,41 +33,6 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 15px;
-}
-
-/* Header */
-header {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-light) 100%);
-    color: var(--white);
-    padding: 3rem 0 2rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-
-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('assets/images/header-books.svg');
-    background-size: 300px;
-    background-position: right 20px center;
-    background-repeat: no-repeat;
-    opacity: 0.1;
-}
-
-header h1 {
-    margin-bottom: 0.5rem;
-    font-size: 2.8rem;
-    font-weight: 700;
-}
-
-header p {
-    font-size: 1.2rem;
-    opacity: 0.9;
 }
 
 /* Navigation */
@@ -122,13 +86,13 @@ nav a:hover {
     display: inline-block;
 }
 
-.admin:hover {
+.admin a:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-hover);
+    color: var(--white);
 }
 
 .admin a {
-    color: var(--white);
     text-decoration: none;
 }
 

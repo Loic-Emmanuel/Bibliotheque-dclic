@@ -1,7 +1,7 @@
 <?php
 // Page de recherche avancée
 include 'includes/database.php';
-include 'includes/crud.php';
+include 'includes/functions.php';
 
 $results = [];
 $titre = '';
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search'])) {
     $auteur = isset($_GET['auteur']) ? trim($_GET['auteur']) : '';
     $editeur = isset($_GET['editeur']) ? trim($_GET['editeur']) : '';
 
-    $results = RechercheLivres($pdo, $titre, $auteur, $editeur);
+    $results = rechercheLivres($pdo, $titre, $auteur, $editeur);
 }
 ?>
 

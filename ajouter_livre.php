@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_book'])) {
     $nombre_exemplaire = intval($_POST['nombre_exemplaire']);
 
     if (!empty($titre) && !empty($auteur)) {
-        $new_book_id = createBook($pdo, $titre, $auteur, $description, $maison_edition, $nombre_exemplaire);
+        $new_book_id = creerLivre($pdo, $titre, $auteur, $description, $maison_edition, $nombre_exemplaire);
 
         if ($new_book_id) {
             $success_message = "Livre ajouté avec succès!";
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_book'])) {
 if (isset($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
 
-    if (deleteBook($pdo, $delete_id)) {
+    if (supprimerLivre($pdo, $delete_id)) {
         $success_message = "Livre supprimé avec succès!";
     } else {
         $error_message = "Erreur lors de la suppression du livre.";
@@ -36,7 +36,7 @@ if (isset($_GET['delete_id'])) {
 }
 
 // Récupérer tous les livres
-$books = readAllBooks($pdo);
+$listes = listeLivresCree($pdo);
 ?>
 
 <!DOCTYPE html>
@@ -198,10 +198,10 @@ $books = readAllBooks($pdo);
         </section>
 
         <!-- Liste des livres -->
-        <section class="books-section">
-            <h2><i class="fa-solid fa-book"></i> Liste des livres (<?php echo count($books); ?>)</h2>
+        <section class="books-section" style="margin-bottom: 5rem;">
+            <h2><i class="fa-solid fa-book"></i> Liste des livres (<?php echo count($listes); ?>)</h2>
 
-            <?php if (empty($books)): ?>
+            <?php if (empty($listes)): ?>
                 <p>Aucun livre dans la bibliothèque.</p>
             <?php else: ?>
                 <table class="books-table">
@@ -216,16 +216,16 @@ $books = readAllBooks($pdo);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($books as $key => $book): ?>
+                        <?php foreach ($listes as $key => $liste): ?>
                             <tr>
                                 <td><?php echo $key + 1; ?></td>
-                                <td><?php echo htmlspecialchars($book['titre']); ?></td>
-                                <td><?php echo htmlspecialchars($book['auteur']); ?></td>
-                                <td><?php echo htmlspecialchars($book['maison_edition']); ?></td>
-                                <td><?php echo $book['nombre_exemplaire']; ?></td>
+                                <td><?php echo htmlspecialchars($liste['titre']); ?></td>
+                                <td><?php echo htmlspecialchars($liste['auteur']); ?></td>
+                                <td><?php echo htmlspecialchars($liste['maison_edition']); ?></td>
+                                <td><?php echo $liste['nombre_exemplaire']; ?></td>
                                 <td class="action-buttons">
-                                    <a href="modifier_livre.php?id=<?php echo $book['id']; ?>" class="btn btn-sm"><i class="fa-solid fa-pen"></i> Modifier</a>
-                                    <a href="?delete_id=<?php echo $book['id']; ?>"
+                                    <a href="modifier_livre.php?id=<?php echo $liste['id']; ?>" class="btn btn-sm"><i class="fa-solid fa-pen"></i> Modifier</a>
+                                    <a href="?delete_id=<?php echo $liste['id']; ?>"
                                         class="btn btn-sm danger"
                                         onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce livre ?')">
                                         <i class="fa-solid fa-trash"></i> Supprimer

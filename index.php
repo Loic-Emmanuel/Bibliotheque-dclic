@@ -1,6 +1,8 @@
 <?php
 include 'includes/database.php';
 include 'includes/functions.php';
+
+$listes = meilleuresLivres($pdo);
 ?>
 
 <?php include 'includes/header.php'; ?>
@@ -56,27 +58,15 @@ include 'includes/functions.php';
     <h3><i class="fa-solid fa-star"></i> Livres populaires</h3>
     <br>
     <div class="books-grid">
-        <div class="book-card">
-            <div class="book-cover">Couverture du livre</div>
-            <h3>Le Petit Prince</h3>
-            <p><strong>Auteur:</strong> Antoine de Saint-Exupéry</p>
-            <p><strong>Disponible:</strong> 5 exemplaires</p>
-            <a href="details.php?id=1" class="btn">Voir les détails</a>
-        </div>
-        <div class="book-card">
-            <div class="book-cover">Couverture du livre</div>
-            <h3>1984</h3>
-            <p><strong>Auteur:</strong> George Orwell</p>
-            <p><strong>Disponible:</strong> 3 exemplaires</p>
-            <a href="details.php?id=2" class="btn">Voir les détails</a>
-        </div>
-        <div class="book-card">
-            <div class="book-cover">Couverture du livre</div>
-            <h3>Harry Potter</h3>
-            <p><strong>Auteur:</strong> J.K. Rowling</p>
-            <p><strong>Disponible:</strong> 8 exemplaires</p>
-            <a href="details.php?id=3" class="btn">Voir les détails</a>
-        </div>
+        <?php foreach ($listes as $liste): ?>
+            <div class="book-card">
+                <div class="book-cover">Couverture du livre</div>
+                <h3><?php echo htmlspecialchars($liste['titre']); ?></h3>
+                <p><strong>Auteur:</strong> <?php echo htmlspecialchars($liste['auteur']); ?></p>
+                <p><strong>Disponible:</strong> <?php echo $liste['nombre_exemplaire']; ?> exemplaires</p>
+                <a href="details.php?id=<?php echo $liste['id']; ?>" class="btn">Voir les détails</a>
+            </div>
+        <?php endforeach; ?>
     </div>
 </section>
 

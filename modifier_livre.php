@@ -1,19 +1,19 @@
 <?php
 // Page de modification d'un livre
-include '../includes/database.php';
-include '../includes/crud.php';
+include 'includes/database.php';
+include 'includes/crud.php';
 
 // Récupérer l'ID du livre à modifier
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header('Location: books_management.php');
+    header('Location: ajouter_livre.php');
     exit;
 }
 
-$book_id = intval($_GET['id']);
-$book = readBookById($pdo, $book_id);
+$livre_id = intval($_GET['id']);
+$livre = recupererLivre($pdo, $livre_id);
 
-if (!$book) {
-    header('Location: books_management.php');
+if (!$livre) {
+    header('Location: ajouter_livre.php');
     exit;
 }
 
@@ -26,10 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_book'])) {
     $nombre_exemplaire = intval($_POST['nombre_exemplaire']);
     
     if (!empty($titre) && !empty($auteur)) {
-        if (updateBook($pdo, $book_id, $titre, $auteur, $description, $maison_edition, $nombre_exemplaire)) {
+        if (modifierLivre($pdo, $livre_id, $titre, $auteur, $description, $maison_edition, $nombre_exemplaire)) {
             $success_message = "Livre modifié avec succès!";
             // Recharger les données du livre
-            $book = readBookById($pdo, $book_id);
+            $livre = recupererLivre($pdo, $livre_id);
         } else {
             $error_message = "Erreur lors de la modification du livre.";
         }
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_book'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier le livre - Administration</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <style>
         .admin-container {
             max-width: 800px;
@@ -86,8 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_book'])) {
 </head>
 <body>
     
-    <div class="admin-container">
+    <div class="admin-container" style="margin-top: 2rem;">
         <h1>Modifier le livre</h1>
+        <br>
         
         <!-- Messages d'alerte -->
         <?php if (isset($success_message)): ?>
@@ -99,45 +100,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_book'])) {
         <?php endif; ?>
         
         <!-- Formulaire de modification -->
-        <section class="form-section">
+        <section class="form-section" style="margin-bottom: 5rem;">
             <form method="POST">
                 <div class="form-group">
                     <label for="titre">Titre *</label>
                     <input type="text" id="titre" name="titre" 
-                           value="<?php echo htmlspecialchars($book['titre']); ?>" required>
+                           value="<?php echo htmlspecialchars($livre['titre']); ?>" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="auteur">Auteur *</label>
                     <input type="text" id="auteur" name="auteur" 
-                           value="<?php echo htmlspecialchars($book['auteur']); ?>" required>
+                           value="<?php echo htmlspecialchars($livre['auteur']); ?>" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="maison_edition">Maison d'édition</label>
                     <input type="text" id="maison_edition" name="maison_edition" 
-                           value="<?php echo htmlspecialchars($book['maison_edition']); ?>">
+                           value="<?php echo htmlspecialchars($livre['maison_edition']); ?>">
                 </div>
                 
                 <div class="form-group">
                     <label for="nombre_exemplaire">Nombre d'exemplaires</label>
                     <input type="number" id="nombre_exemplaire" name="nombre_exemplaire" 
-                           value="<?php echo $book['nombre_exemplaire']; ?>" min="0">
+                           value="<?php echo $livre['nombre_exemplaire']; ?>" min="0">
                 </div>
                 
                 <div class="form-group">
                     <label for="description">Description</label>
-                    <textarea id="description" name="description"><?php echo htmlspecialchars($book['description']); ?></textarea>
+                    <textarea id="description" name="description"><?php echo htmlspecialchars($livre['description']); ?></textarea>
                 </div>
                 
                 <div class="button-group">
                     <button type="submit" name="update_book" class="btn">Mettre à jour</button>
-                    <a href="livre_management.php" class="btn secondary">Retour</a>
+                    <a href="ajouter_livre.php" class="btn secondary">Retour</a>
                 </div>
             </form>
         </section>
     </div>
     
-    <?php include '../includes/footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 </body>
 </html>
