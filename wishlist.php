@@ -2,6 +2,7 @@
 include 'includes/database.php';
 include 'includes/functions.php';
 
+// L'utilisateur par defaut est le lecteur 1 - Yao Allou Loic Emmanuel
 $id_lecteur = 1;
 
 if (isset($_POST['supprimer'])) {
