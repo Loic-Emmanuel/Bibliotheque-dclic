@@ -47,4 +47,4 @@ La base de données utilise les tables :
 
 Votre nom - Yao Allou Loic Emmanuel - allouyao21@gmail.com
 
-Lien du projet : [https://github.com/allouyao21/bibliotheque]
+Lien du projet : [https://github.com/Loic-Emmanuel/Bibliotheque-dclic]
