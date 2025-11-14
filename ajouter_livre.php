@@ -1,9 +1,7 @@
 <?php
-// Page d'administration pour la gestion des livres
 include 'includes/database.php';
 include 'includes/crud.php';
 
-// Traitement du formulaire d'ajout
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_livre'])) {
     $titre = trim($_POST['titre']);
     $auteur = trim($_POST['auteur']);
@@ -12,11 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_livre'])) {
     $nombre_exemplaire = intval($_POST['nombre_exemplaire']);
     $image_nom = null;
 
-    // Traitement de l'image
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
         $dossier_images = 'images/';
 
-        // Créer le dossier s'il n'existe pas
         if (!is_dir($dossier_images)) {
             mkdir($dossier_images, 0755, true);
         }
@@ -26,27 +22,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_livre'])) {
         $taille_fichier = $_FILES['image']['size'];
         $extension = strtolower(pathinfo($nom_fichier, PATHINFO_EXTENSION));
 
-        // Extensions autorisées
         $extensions_autorisees = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-        // Vérification plus poussée du type MIME
         $type_mime_autorise = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $type_mime_upload = mime_content_type($fichier_tmp);
 
-        // Vérifications de sécurité
-        if (
-            in_array($extension, $extensions_autorisees) &&
-            in_array($type_mime_upload, $type_mime_autorise) &&
-            $taille_fichier <= 5000000
-        ) { // 5MB max
-
-            // Générer un nom unique pour l'image
+        if (in_array($extension, $extensions_autorisees) && in_array($type_mime_upload, $type_mime_autorise) && $taille_fichier <= 5000000) {
             $image_nom = uniqid() . '_' . time() . '.' . $extension;
             $chemin_image = $dossier_images . $image_nom;
 
-            // Déplacer le fichier uploadé
             if (move_uploaded_file($fichier_tmp, $chemin_image)) {
-                // Succès - le fichier a été sauvegardé
             } else {
                 $error_message = "Erreur lors du téléchargement de l'image.";
                 $image_nom = null;
@@ -54,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_livre'])) {
         } else {
             $error_message = "Fichier image invalide. Formats acceptés : JPG, PNG, GIF, WebP (max 5MB).";
         }
-    } elseif (isset($_FILES['image']) && $_FILES['image']['error'] !== 4) { // Error 4 = aucun fichier
+    } elseif (isset($_FILES['image']) && $_FILES['image']['error'] !== 4) {
         $error_message = "Erreur lors du téléchargement de l'image. Code d'erreur : " . $_FILES['image']['error'];
     }
 
@@ -63,13 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_livre'])) {
 
         if ($nouveau_livre) {
             $success_message = "Livre ajouté avec succès!" . ($image_nom ? " (avec image)" : "");
-
-            // Réinitialiser le formulaire
             $_POST = array();
         } else {
             $error_message = "Erreur lors de l'ajout du livre.";
-
-            // Supprimer l'image uploadée si l'insertion a échoué
             if ($image_nom && file_exists($dossier_images . $image_nom)) {
                 unlink($dossier_images . $image_nom);
             }
@@ -79,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_livre'])) {
     }
 }
 
-// Traitement de la suppression
 if (isset($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
 
@@ -90,7 +69,6 @@ if (isset($_GET['delete_id'])) {
     }
 }
 
-// Récupérer tous les livres
 $listes = listeLivresCree($pdo);
 ?>
 
@@ -201,7 +179,6 @@ $listes = listeLivresCree($pdo);
         <h1>Gestion des Livres - Administration</h1>
         <br>
 
-        <!-- Messages d'alerte -->
         <?php if (isset($success_message)): ?>
             <div class="alert success"><?php echo $success_message; ?></div>
         <?php endif; ?>
@@ -210,7 +187,6 @@ $listes = listeLivresCree($pdo);
             <div class="alert error"><?php echo $error_message; ?></div>
         <?php endif; ?>
 
-        <!-- Formulaire d'ajout -->
         <section class="form-section">
             <h2> <i class="fa-solid fa-book"></i> Ajouter un nouveau livre</h2>
             <br>
@@ -264,7 +240,6 @@ $listes = listeLivresCree($pdo);
             </form>
         </section>
 
-        <!-- Liste des livres -->
         <section class="books-section" style="margin-bottom: 5rem;">
             <h2><i class="fa-solid fa-book"></i> Liste des livres (<?php echo count($listes); ?>)</h2>
 
@@ -325,7 +300,6 @@ $listes = listeLivresCree($pdo);
     </footer>
 
     <script>
-        // Prévisualisation de l'image
         function previsualisationImage(input) {
             const previsualiser = document.getElementById("previsualiser");
             const imageprevisualisation = document.getElementById("imageprevisualisation");
