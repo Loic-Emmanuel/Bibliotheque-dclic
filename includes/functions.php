@@ -54,11 +54,11 @@ function SupprimerListe($pdo, $id_livre, $id_lecteur)
 // Fonction pour obtenir les meilleurs livres en fonction du nombre ajouté dans la liste de lecture
 function meilleuresLivres($pdo)
 {
-    $sql = "SELECT li.id, li.titre, li.auteur, li.nombre_exemplaire,
+    $sql = "SELECT li.id, li.titre, li.auteur, li.nombre_exemplaire, li.image,
        COUNT(lil.id_livre) AS nombre_ajouts
         FROM livres li
         JOIN liste_lecture lil ON lil.id_livre = li.id
-        GROUP BY li.id, li.titre, li.auteur, li.nombre_exemplaire
+        GROUP BY li.id, li.titre, li.auteur, li.nombre_exemplaire, li.image
         ORDER BY nombre_ajouts DESC
         LIMIT 3;";
     $stmt = $pdo->query($sql);

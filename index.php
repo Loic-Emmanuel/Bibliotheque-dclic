@@ -9,7 +9,7 @@ $listes = meilleuresLivres($pdo);
 
 
 <section class="hero" style="margin-top: 100px;">
-    <div class="hero-content" >
+    <div class="hero-content">
         <div class="hero-text">
             <h2>Bienvenue dans notre bibliothèque en ligne</h2>
             <p>Découvrez, explorez et empruntez des livres de notre vaste collection. Plus de 10,000 livres disponibles pour tous les goûts.</p>
@@ -60,7 +60,28 @@ $listes = meilleuresLivres($pdo);
     <div class="books-grid">
         <?php foreach ($listes as $liste): ?>
             <div class="book-card">
-                <div class="book-cover">Couverture du livre</div>
+                <div class="book-cover">
+                    <?php
+                    $image_path = 'images/' . $liste['image'];
+                    $image_exists = !empty($liste['image']) && file_exists($image_path);
+                    ?>
+
+                    <?php if ($image_exists): ?>
+                        <img src="images/<?php echo htmlspecialchars($liste['image']); ?>"
+                            alt="Couverture de <?php echo htmlspecialchars($liste['titre']); ?>"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <?php endif; ?>
+
+                    <div class="default-cover" style="display: <?php echo $image_exists ? 'none' : 'flex'; ?>; 
+                                    width: 100%; height: 200px; background: linear-gradient(135deg, #868997ff 0%, #968aa1ff 100%); 
+                                    flex-direction: column; align-items: center; justify-content: center; color: white; 
+                                    border-radius: 8px; font-weight: bold;">
+                        <i class="fa-solid fa-book" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <span style="font-size: 1.2rem; text-transform: uppercase;">
+                            <?php echo substr(htmlspecialchars($liste['titre']), 0, 2); ?>
+                        </span>
+                    </div>
+                </div>
                 <h3><?php echo htmlspecialchars($liste['titre']); ?></h3>
                 <p><strong>Auteur:</strong> <?php echo htmlspecialchars($liste['auteur']); ?></p>
                 <p><strong>Disponible:</strong> <?php echo $liste['nombre_exemplaire']; ?> exemplaires</p>

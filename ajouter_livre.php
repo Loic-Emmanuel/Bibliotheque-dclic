@@ -4,22 +4,77 @@ include 'includes/database.php';
 include 'includes/crud.php';
 
 // Traitement du formulaire d'ajout
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_book'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajouter_livre'])) {
     $titre = trim($_POST['titre']);
     $auteur = trim($_POST['auteur']);
     $description = trim($_POST['description']);
     $maison_edition = trim($_POST['maison_edition']);
     $nombre_exemplaire = intval($_POST['nombre_exemplaire']);
+    $image_nom = null;
 
-    if (!empty($titre) && !empty($auteur)) {
-        $new_book_id = creerLivre($pdo, $titre, $auteur, $description, $maison_edition, $nombre_exemplaire);
+    // Traitement de l'image
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        $dossier_images = 'images/';
 
-        if ($new_book_id) {
-            $success_message = "Livre ajouté avec succès!";
+        // Créer le dossier s'il n'existe pas
+        if (!is_dir($dossier_images)) {
+            mkdir($dossier_images, 0755, true);
+        }
+
+        $nom_fichier = $_FILES['image']['name'];
+        $fichier_tmp = $_FILES['image']['tmp_name'];
+        $taille_fichier = $_FILES['image']['size'];
+        $extension = strtolower(pathinfo($nom_fichier, PATHINFO_EXTENSION));
+
+        // Extensions autorisées
+        $extensions_autorisees = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        // Vérification plus poussée du type MIME
+        $type_mime_autorise = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $type_mime_upload = mime_content_type($fichier_tmp);
+
+        // Vérifications de sécurité
+        if (
+            in_array($extension, $extensions_autorisees) &&
+            in_array($type_mime_upload, $type_mime_autorise) &&
+            $taille_fichier <= 5000000
+        ) { // 5MB max
+
+            // Générer un nom unique pour l'image
+            $image_nom = uniqid() . '_' . time() . '.' . $extension;
+            $chemin_image = $dossier_images . $image_nom;
+
+            // Déplacer le fichier uploadé
+            if (move_uploaded_file($fichier_tmp, $chemin_image)) {
+                // Succès - le fichier a été sauvegardé
+            } else {
+                $error_message = "Erreur lors du téléchargement de l'image.";
+                $image_nom = null;
+            }
+        } else {
+            $error_message = "Fichier image invalide. Formats acceptés : JPG, PNG, GIF, WebP (max 5MB).";
+        }
+    } elseif (isset($_FILES['image']) && $_FILES['image']['error'] !== 4) { // Error 4 = aucun fichier
+        $error_message = "Erreur lors du téléchargement de l'image. Code d'erreur : " . $_FILES['image']['error'];
+    }
+
+    if (!empty($titre) && !empty($auteur) && !isset($error_message)) {
+        $nouveau_livre = creerLivre($pdo, $titre, $auteur, $description, $maison_edition, $nombre_exemplaire, $image_nom);
+
+        if ($nouveau_livre) {
+            $success_message = "Livre ajouté avec succès!" . ($image_nom ? " (avec image)" : "");
+
+            // Réinitialiser le formulaire
+            $_POST = array();
         } else {
             $error_message = "Erreur lors de l'ajout du livre.";
+
+            // Supprimer l'image uploadée si l'insertion a échoué
+            if ($image_nom && file_exists($dossier_images . $image_nom)) {
+                unlink($dossier_images . $image_nom);
+            }
         }
-    } else {
+    } elseif (!isset($error_message)) {
         $error_message = "Le titre et l'auteur sont obligatoires.";
     }
 }
@@ -113,13 +168,7 @@ $listes = listeLivresCree($pdo);
         }
 
         .books-table th {
-            background-color: #f8f9fa;
             font-weight: bold;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 5px;
         }
 
         .btn-sm {
@@ -130,7 +179,7 @@ $listes = listeLivresCree($pdo);
 </head>
 
 <body>
-    
+
     <div style="position: absolute; top: 35px; right: 230px;">
         <button style="
         background-color: #3498db;
@@ -165,7 +214,7 @@ $listes = listeLivresCree($pdo);
         <section class="form-section">
             <h2> <i class="fa-solid fa-book"></i> Ajouter un nouveau livre</h2>
             <br>
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="titre">Titre *</label>
@@ -187,13 +236,31 @@ $listes = listeLivresCree($pdo);
                         <input type="number" id="nombre_exemplaire" name="nombre_exemplaire" value="1" min="0">
                     </div>
 
+                    <div class="form-group">
+                        <label for="image">Image</label>
+                        <input type="file" id="image" name="image" accept="image/*" style="padding: 8px;
+                        border: 2px dashed #3498db;
+                        border-radius: 6px;
+                        background-color: #f8f9fa;
+                        width: 100%;
+                        cursor: pointer;
+                        transition: all 0.3s ease;"
+                            onchange="previsualisationImage(this)">
+                        <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+                            Formats acceptés : JPG, PNG, GIF, WebP
+                        </small>
+                        <div id="imageprevisualisation" style="margin-top: 10px; display: none;">
+                            <img id="previsualiser" src="#" alt="Aperçu" style="max-width: 150px; max-height: 200px; border-radius: 4px; border: 1px solid #ddd;">
+                        </div>
+                    </div>
+
                     <div class="form-group full-width">
                         <label for="description">Description</label>
                         <textarea id="description" name="description"></textarea>
                     </div>
                 </div>
 
-                <button type="submit" name="add_book" class="btn"> <i class="fa-solid fa-plus"></i> Ajouter le livre</button>
+                <button type="submit" name="ajouter_livre" class="btn"> <i class="fa-solid fa-plus"></i> Ajouter le livre</button>
             </form>
         </section>
 
@@ -205,9 +272,10 @@ $listes = listeLivresCree($pdo);
                 <p>Aucun livre dans la bibliothèque.</p>
             <?php else: ?>
                 <table class="books-table">
-                    <thead>
+                    <thead style="color: #333;">
                         <tr>
                             <th>N°</th>
+                            <th>Image</th>
                             <th>Titre</th>
                             <th>Auteur</th>
                             <th>Éditeur</th>
@@ -219,6 +287,17 @@ $listes = listeLivresCree($pdo);
                         <?php foreach ($listes as $key => $liste): ?>
                             <tr>
                                 <td><?php echo $key + 1; ?></td>
+                                <td>
+                                    <?php if (!empty($liste['image']) && file_exists('images/' . $liste['image'])): ?>
+                                        <img src="images/<?php echo htmlspecialchars($liste['image']); ?>"
+                                            alt="Couverture de <?php echo htmlspecialchars($liste['titre']); ?>"
+                                            style="width: 50px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                    <?php else: ?>
+                                        <div style="width: 50px; height: 60px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 10px; color: #666;">
+                                            <span>Aucune image</span>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?php echo htmlspecialchars($liste['titre']); ?></td>
                                 <td><?php echo htmlspecialchars($liste['auteur']); ?></td>
                                 <td><?php echo htmlspecialchars($liste['maison_edition']); ?></td>
@@ -239,7 +318,32 @@ $listes = listeLivresCree($pdo);
         </section>
     </div>
 
-    <?php include 'includes/footer.php'; ?>
+    <footer>
+        <div class="container">
+            <p>&copy; <?php echo date('Y'); ?> Bibliothèque en ligne. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Prévisualisation de l'image
+        function previsualisationImage(input) {
+            const previsualiser = document.getElementById("previsualiser");
+            const imageprevisualisation = document.getElementById("imageprevisualisation");
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    previsualiser.src = e.target.result;
+                    imageprevisualisation.style.display = "block";
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                imageprevisualisation.style.display = "none";
+            }
+        }
+    </script>
 </body>
 
 </html>
