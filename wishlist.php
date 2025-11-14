@@ -2,10 +2,8 @@
 include 'includes/database.php';
 include 'includes/functions.php';
 
-// Dans un cas réel, vous récupéreriez l'ID du lecteur connecté
-$id_lecteur = 1; // ID temporaire pour la démonstration
+$id_lecteur = 1;
 
-// Traitement de la suppression d'un livre
 if (isset($_POST['supprimer'])) {
     $id_livre = intval($_POST['livre_id']);
     if (SupprimerListe($pdo, $id_livre, $id_lecteur)) {
@@ -37,6 +35,30 @@ $livres = MaListe($pdo, $id_lecteur);
         <div class="books-grid advanced-search-form">
             <?php foreach ($livres as $livre): ?>
                 <div class="book-card">
+                    <div class="book-cover">
+                        <?php 
+                        $image_path = 'images/' . $livre['image'];
+                        $image_exists = !empty($livre['image']) && file_exists($image_path);
+                        ?>
+                        
+                        <?php if ($image_exists): ?>
+                            <img src="images/<?php echo htmlspecialchars($livre['image']); ?>" 
+                                 alt="Couverture de <?php echo htmlspecialchars($livre['titre']); ?>"
+                                 style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <?php endif; ?>
+                        
+                        <div class="default-cover" style="display: <?php echo $image_exists ? 'none' : 'flex'; ?>; 
+                                    width: 100%; height: 200px; background: linear-gradient(135deg, #868997ff 0%, #968aa1ff 100%); 
+                                    flex-direction: column; align-items: center; justify-content: center; color: white; 
+                                    border-radius: 8px; font-weight: bold;">
+                            <i class="fa-solid fa-book" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <span style="font-size: 1.2rem; text-transform: uppercase;">
+                                <?php echo substr(htmlspecialchars($livre['titre']), 0, 2); ?>
+                            </span>
+                        </div>
+                    </div>
+                    
                     <h3><?php echo htmlspecialchars($livre['titre']); ?></h3>
                     <p><strong>Auteur:</strong> <?php echo htmlspecialchars($livre['auteur']); ?></p>
                     <p><strong>Éditeur:</strong> <?php echo htmlspecialchars($livre['maison_edition']); ?></p>

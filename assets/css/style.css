@@ -283,7 +283,6 @@ main {
 .book-cover {
     width: 100%;
     height: 200px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 6px;
     margin-bottom: 1rem;
     display: flex;
@@ -302,16 +301,72 @@ main {
     padding: 2.5rem;
     border-radius: 12px;
     box-shadow: var(--shadow);
+    margin-top: 5rem;
 }
 
+/* Conteneur principal */
 .book-info {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
     margin-bottom: 2rem;
 }
 
+/* Texte */
 .book-info p {
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
     font-size: 1.1rem;
+    line-height: 1.5;
 }
+
+/* Image du livre */
+.book-info img {
+    width: 200px;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease;
+}
+
+.book-info img:hover {
+    transform: scale(1.05);
+}
+
+/* Boutons */
+.book-details .btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 1rem;
+}
+
+.book-details .btn.secondary {
+    background: #ddd;
+    color: #333;
+}
+
+.alert {
+    margin: 1rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .book-info {
+        flex-direction: column;
+        text-align: left;
+    }
+
+    .book-info img {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+}
+
 
 /* Boutons */
 .btn {
@@ -483,11 +538,6 @@ footer {
     background-color: var(--light-gray);
 }
 
-.action-buttons {
-    display: flex;
-    gap: 0.5rem;
-}
-
 .btn-sm {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
@@ -610,4 +660,54 @@ footer {
     .container {
         width: 95%;
     }
+}
+
+.default-cover {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.default-cover i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.default-cover span {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+}
+
+.book-cover {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.book-card:hover .book-cover img {
+    transform: scale(1.05);
+}
+
+.book-cover img[src*="placeholder"] {
+    object-fit: contain;
+    background: #f8f9fa;
 }
